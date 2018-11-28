@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import phantom from 'phantom'
+import puppeteer from 'puppeteer'
 import http from 'http'
-import createPhantomPool from '../src'
+import createPuppeteerPool from '../src'
 
 const startServer = () => new Promise((resolve, reject) => {
   const server = http.createServer((req, res) => {
@@ -12,11 +12,11 @@ const startServer = () => new Promise((resolve, reject) => {
   })
 })
 
-const pool = createPhantomPool()
+const pool = createPuppeteerPool()
 
 /* eslint-disable no-unused-vars */
 const noPool = async (url) => {
-  const instance = await phantom.create()
+  const instance = await puppeteer.create()
   const page = await instance.createPage()
   const status = await page.open(url, { operation: 'GET' })
   if (status !== 'success') throw new Error(status)

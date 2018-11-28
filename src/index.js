@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import puppeteer from 'puppeteer'
 import genericPool from 'generic-pool'
 import initDebug from 'debug'
+
 const debug = initDebug('puppeteer-pool')
 
 const initPuppeteerPool = ({
@@ -16,7 +18,6 @@ const initPuppeteerPool = ({
   validator = () => Promise.resolve(true),
   ...otherConfig
 } = {}) => {
-  // TODO: randomly destroy old instances to avoid resource leak?
   const factory = {
     create: () => puppeteer.launch(puppeteerArgs).then(instance => {
       instance.useCount = 0
@@ -25,10 +26,8 @@ const initPuppeteerPool = ({
     destroy: (instance) => {
       instance.close()
     },
-    validate: (instance) => {
-      return validator(instance)
-        .then(valid => Promise.resolve(valid && (maxUses <= 0 || instance.useCount < maxUses)))
-    },
+    validate: (instance) => validator(instance)
+      .then(valid => Promise.resolve(valid && (maxUses <= 0 || instance.useCount < maxUses))),
   }
   const config = {
     max,
@@ -63,8 +62,6 @@ const initPuppeteerPool = ({
   return pool
 }
 
-// To avoid breaking backwards compatibility
-// https://github.com/binded/phantom-pool/issues/12
 initPuppeteerPool.default = initPuppeteerPool
 
 export default initPuppeteerPool
